@@ -8,8 +8,16 @@ import urllib.parse
 import tqdm
 import shutil
 
-STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=3531865152"
-STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=1215678694"
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=3531865152"# Terraforming Mars all expansions
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=1215678694"# Terraforming Mars 3D models
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=3353178198"# Dixit All expansions
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=2073486386"# Codenames RUS
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=1665341755"# Codenames Duet Polish
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=3470305675"# Modern Art
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=3021494920"# Arkham Horror LCG
+STEAM_WORKSHOP_URL = "https://steamcommunity.com/sharedfiles/filedetails/?id=1653501819"# Шерлок Холмс - детективная игра - на русском
+
+
 OUTPUT_STEAM_WORKSHOP_MATERIALS_URL_FOLDER_PATH = ""
 
 ROOT_FOLDER_PATH_str = os.getcwd()
@@ -28,7 +36,17 @@ BROWSER_HEADERS = {
     "sec-ch-ua-platform": '"Windows"'
 }
 
+def sanitize_folder_name(folder_title_str):
+    # Замена недопустимых символов
+    invalid_chars = r'[<>:"/\\|?*]'
+    folder_name = re.sub(invalid_chars, '_', folder_title_str)
+
+    # Удаление лишних пробелов и замена пробелов на подчёркивания
+    folder_name = folder_name.strip()
+    return folder_name
+
 def get_make_results_folder_path(folder_title_str):
+    folder_title_str = sanitize_folder_name(folder_title_str)
     output_folder_path = os.path.join(RESULTS_FOLDER_PATH_str, folder_title_str)
     os.makedirs(output_folder_path, exist_ok=True)
     return output_folder_path
@@ -159,7 +177,8 @@ def get_request_title_and_cdn_link_from_steam_api(output_folder, steam_workshop_
     details = response.json()["response"]["publishedfiledetails"][0]
     cdn_to_download_file_url = details["file_url"]
     if not output_folder:
-        results_folder_title_str = details['publishedfileid'] + "_" + details["title"]
+        #results_folder_title_str = details['publishedfileid'] + "_" + details["title"]
+        results_folder_title_str = f"{details['publishedfileid']}_{sanitize_folder_name(details['title'])}"
         output_folder = get_make_results_folder_path(results_folder_title_str)
         create_write_file_string(output_folder, "api_steampowered_response.json", json.dumps(parsed_json, indent=4, ensure_ascii=False))
         return output_folder, cdn_to_download_file_url
